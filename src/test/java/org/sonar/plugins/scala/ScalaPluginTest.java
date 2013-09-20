@@ -19,17 +19,22 @@
  */
 package org.sonar.plugins.scala;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.sonar.plugins.scala.cobertura.CoberturaMavenPluginHandler;
 
 public class ScalaPluginTest {
 
   @Test
   public void shouldHaveExtensions() {
     assertThat(new ScalaPlugin().getExtensions().size(), greaterThan(0));
+  }
+  
+  @Test
+  public void shouldHaveCoberturaPlugin() {
+	  assertTrue(new ScalaPlugin().getExtensions().contains(CoberturaMavenPluginHandler.class));
   }
 
   @Test
