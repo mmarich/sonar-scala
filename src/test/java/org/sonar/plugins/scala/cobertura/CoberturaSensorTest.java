@@ -32,13 +32,11 @@ import static org.mockito.Mockito.when;
 
 public class CoberturaSensorTest {
 
-  private CoberturaMavenPluginHandler mavenPluginHandler;
   private CoberturaSensor sensor;
 
   @Before
   public void setUp() throws Exception {
-    mavenPluginHandler = mock(CoberturaMavenPluginHandler.class);
-    sensor = new CoberturaSensor(mavenPluginHandler);
+    sensor = new CoberturaSensor();
   }
 
   /**
@@ -48,18 +46,6 @@ public class CoberturaSensorTest {
   public void should_parse_report() {
     SensorContext context = mock(SensorContext.class);
     sensor.parseReport(TestUtils.getResource("/org/sonar/plugins/scala/cobertura/coverage.xml"), context);
-  }
-
-  @Test
-  public void should_execute_on_project() {
-    Project project = mock(Project.class);
-    when(project.getLanguageKey()).thenReturn(Scala.INSTANCE.getKey());
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertTrue(sensor.shouldExecuteOnProject(project));
-    assertNull(sensor.getMavenPluginHandler(project));
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertTrue(sensor.shouldExecuteOnProject(project));
-    assertEquals(sensor.getMavenPluginHandler(project), mavenPluginHandler);
   }
 
   @Test

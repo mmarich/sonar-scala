@@ -17,6 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+
 package org.sonar.plugins.scala.cobertura;
 
 import org.slf4j.Logger;
@@ -24,25 +25,18 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.CoverageExtension;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
+//import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.plugins.cobertura.api.AbstractCoberturaParser;
 import org.sonar.plugins.cobertura.api.CoberturaUtils;
 import org.sonar.plugins.scala.language.Scala;
 
 import java.io.File;
 
-public class CoberturaSensor implements Sensor, DependsUponMavenPlugin, CoverageExtension {
+public class CoberturaSensor implements Sensor, CoverageExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoberturaSensor.class);
-
-  private CoberturaMavenPluginHandler handler;
-
-  public CoberturaSensor(CoberturaMavenPluginHandler handler) {
-    this.handler = handler;
-  }
+  private static final AbstractCoberturaParser COBERTURA_PARSER = new ScalaCoberturaParser();
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getAnalysisType().isDynamic(true) && Scala.INSTANCE.getKey().equals(project.getLanguageKey());
@@ -55,25 +49,10 @@ public class CoberturaSensor implements Sensor, DependsUponMavenPlugin, Coverage
     }
   }
 
-  public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (project.getAnalysisType().equals(Project.AnalysisType.DYNAMIC)) {
-      return handler;
-    }
-    return null;
-  }
-
   protected void parseReport(File xmlFile, final SensorContext context) {
     LOG.info("parsing {}", xmlFile);
     COBERTURA_PARSER.parseReport(xmlFile, context);
   }
-
-  private static final AbstractCoberturaParser COBERTURA_PARSER = new AbstractCoberturaParser() {
-    @Override
-    protected Resource<?> getResource(String fileName) {
-      fileName = fileName.replace(".", "/") + ".scala";
-      return new org.sonar.api.resources.File(fileName);
-    }
-  };
 
   @Override
   public String toString() {
